@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = null;
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<link rel="icon" href="/image/c21-logo-icon.png">
+
+<script>
+    async function makeCall() {
+        let callResult = await call();
+        //console.log(JSON.stringify(callResult));
+        if (callResult.CUuid != "") {
+            var interval = setInterval(function () {
+                $.ajax({
+                    url: 'https://vonage.century21-goodwin.com/api/Vonage/Status?ConversationUuid=' + callResult.CUuid,                    
+                    dataType: "json",
+                    type: "GET",
+                    cache: false,
+                    success: function (result) {
+
+                        if (result.status === "completed") {
+                            clearInterval(interval);
+                        }
+                    },
+                    error: function (result) {
+                        alert(result.responseText);
+
+                    }
+                });
+            }, 2000)
+        }
+
+    }
+
+    async function call() {
+        let result;
+        try {
+            result = await $.ajax({
+                /**/
+                url: 'https://vonage.century21-goodwin.com/api/Vonage/Call',
+                /**/
+                dataType: "json",
+                type: "POST",
+                cache: false,
+                data: {
+                    branchName: $("#branchName").val(),
+                    staffName: $("#staffName").val(),
+                    email: $("#email").val(),
+                    staffTelNo: $("#from").val(),
+                    clientName: $("#clientName").val(),
+                    clientTel: $("#to").val(),
+                },
+            });
+
+            return result;
+        } catch (error) {
+            return error;
+        }
+    }
+</script>
+
+
+<div class="container">
+    <p>
+        <label>Branch Name:</label>
+        <input type="text" name="branchName" id="branchName" value="第一城" />
+    </p>
+    <p>
+        <label>Staff Name:</label>
+        <input type="text" name="staffName" id="staffName" value="Chris Chung" />
+    </p>
+
+    <p>
+        <label>Email:</label>
+        <input type="text" name="email" id="email" value="chrischung@century21-goodwin.com" />
+    </p>
+
+    <p>
+        <label>From:</label>
+        <input type="text" name="from" id="from" value="85260240727" />
+    </p>
+
+    <p>
+        <label>Client Name:</label>
+        <input type="text" name="clientName" id="clientName" value="李先生" />
+    </p>
+
+    <p>
+        <label>To:</label>
+        <input type="text" name="to" id="to" value="85238553012" />
+    </p>
+    <p>
+        <button onclick="call();">Call</button>
+       
+    </p>
+    <p> <span id="status">Status</span></p>
+   
+
+</div>
